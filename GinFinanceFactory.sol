@@ -20,6 +20,11 @@ contract GinFinanceFactory is IGinFinanceFactory {
     address[] public override allPairs;
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
+    event SetPairFee(address indexed pair, uint pairFee);
+    event SetDefaultFee(uint defaultFee);
+    event SetFeeToAlloc(uint feeToAlloc);
+    event SetFeeToSetter(address feeToSetter);
+    event SetFeeTo(address feeTo);
 
     constructor(address _feeToSetter) public {
         feeToSetter = _feeToSetter;
@@ -41,8 +46,7 @@ contract GinFinanceFactory is IGinFinanceFactory {
         require(tokenA != tokenB, 'GinFinanceFactory: IDENTICAL_ADDRESSES');
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'GinFinanceFactory: ZERO_ADDRESS');
-        require(getPair[token0][token1] == address(0), 'GinFinanceFactory: PAIR_EXISTS'); // single check is 
-sufficient
+        require(getPair[token0][token1] == address(0), 'GinFinanceFactory: PAIR_EXISTS'); // single check is sufficient
         bytes memory bytecode = type(GinFinancePair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
@@ -58,17 +62,20 @@ sufficient
     function setFeeTo(address _feeTo) external override {
         require(msg.sender == feeToSetter, 'GinFinanceFactory: FORBIDDEN');
         feeTo = _feeTo;
+        emit SetFeeTo(_feeTo);
     }
 
     function setFeeToSetter(address _feeToSetter) external override {
         require(msg.sender == feeToSetter, 'GinFinanceFactory: FORBIDDEN');
         feeToSetter = _feeToSetter;
+        emit SetFeeToSetter(_feeToSetter);
     }
 
     function setFeeToAlloc(uint _feeToAlloc) external override {
         require(msg.sender == feeToSetter, 'GinFinanceFactory: FORBIDDEN');
         require(_feeToAlloc <= 5, "GinFinanceFactory: FEE_TO_ALLOC_OVERFLOW");
         feeToAlloc = _feeToAlloc;
+        emit SetFeeToAlloc(_feeToAlloc);
     }
 
     // Max is 1%
@@ -76,6 +83,7 @@ sufficient
         require(msg.sender == feeToSetter, 'GinFinanceFactory: FORBIDDEN');
         require(_defaultFee != 0 && _defaultFee <= 100, "GinFinanceFactory: FEE_OUT_OF_RANGE");
         defaultFee = _defaultFee;
+        emit SetDefaultFee(_defaultFee);
     }
 
     // Max is 1%
@@ -83,6 +91,7 @@ sufficient
         require(msg.sender == feeToSetter, 'GinFinanceFactory: FORBIDDEN');
         require(_fee != 0 && _fee <= 100, 'GinFinanceFactory: FEE_OUT_OF_RANGE');
         pairFee[_pair] = _fee;
+        emit SetPairFee(_pair, _fee);
     }
 }
 
