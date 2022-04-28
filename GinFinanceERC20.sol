@@ -90,8 +90,7 @@ external {
             )
         );
         address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && recoveredAddress == owner, 'GinFinanceERC20: 
-INVALID_SIGNATURE');
+        require(recoveredAddress != address(0) && recoveredAddress == owner, 'GinFinanceERC20: INVALID_SIGNATURE');
         _approve(owner, spender, value);
     }
 }
