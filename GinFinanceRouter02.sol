@@ -69,6 +69,7 @@ contract GinFinanceRouter02 is IGinFinanceRouter02 {
         address to,
         uint deadline
     ) external virtual override ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
+        require((amountADesired >= amountAMin) && (amountBDesired >= amountBMin), "GinFinanceRouter: INVALID AMOUNT");
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, 
 amountBMin);
         address pair = GinFinanceLibrary.pairFor(factory, tokenA, tokenB);
